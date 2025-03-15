@@ -4,7 +4,14 @@ import psycopg2
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from transformers import AutoTokenizer, AutoModel
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.db import connection 
 import torch
+import nltk
+
+nltk.download("punkt")
+from nltk.tokenize import sent_tokenize
 
 # Load Hugging Face model for embedding generation
 tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
@@ -64,3 +71,38 @@ def search_embeddings(request):
             return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+@api_view(['POST'])
+def upload_text(request):
+    """
+    API to upload text, generate embeddings, and store in PostgreSQL using raw SQL.
+    """
+    try:
+        text = request.data.get('text', None)
+        if not text:
+            return Response({"error": "No text provided."}, status=400)
+        
+        sentences = sent_tokenize(text)  # Split into sentences
+        inserted_data = []
+
+        conn = psycopg2.connect(**DB_CONFIG)
+        cur = conn.cursor()
+
+        for sentence in sentences:
+            embedding = generate_embedding(sentence)  # ✅ Fixed embedding function
+            cur.execute(
+                "INSERT INTO embeddings (content, embedding) VALUES (%s, %s) RETURNING id;",
+                (sentence, embedding)  # ✅ Store embedding correctly
+            )
+            new_id = cur.fetchone()[0]  # Get inserted ID
+            inserted_data.append({"id": new_id, "content": sentence, "embedding": embedding})
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return Response({"message": "Embeddings stored successfully!", "data": inserted_data}, status=201)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
