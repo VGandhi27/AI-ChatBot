@@ -52,10 +52,11 @@ def search_embeddings(request):
             # Search in the vector database
             cursor.execute(
                 """
-                SELECT content, embedding <=> %s::vector AS distance
+                SELECT content, 1 - (embedding <=> %s::vector) AS similarity
                 FROM embeddings
-                ORDER BY distance ASC
+                ORDER BY similarity DESC
                 LIMIT 5;
+
                 """,
                 (query_embedding,),
             )
@@ -64,7 +65,6 @@ def search_embeddings(request):
 
             cursor.close()
             conn.close()
-
             return JsonResponse({"results": results})
 
         except Exception as e:
