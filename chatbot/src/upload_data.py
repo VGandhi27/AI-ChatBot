@@ -1,7 +1,14 @@
+'''
+* File Name         : upload_data.py
+* Description       : Functions related to Upload data in postgresql
+'''
+
+# Import modules 
 import json
 import requests
 import nltk
 from nltk.tokenize import sent_tokenize
+from chatbot.src import Common
 
 nltk.download("punkt")
 
@@ -41,7 +48,8 @@ for key, value in portfolio_data.items():
         sentences.extend(sent_tokenize(str(value)))  # Tokenize text into sentences
 
 # API Endpoint
-url = "http://localhost:40/chatbot/upload/"
+cbot_config = Common.chat_bot_config()
+url = f"http://{cbot_config['Host']}:{cbot_config['Port']}/chatbot/upload/"
 
 # Upload each sentence separately
 for sentence in sentences:

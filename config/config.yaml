@@ -1,0 +1,8 @@
+
+Portfolio:
+  Host: 127.0.0.1
+  Port: 50
+
+ChatBot:
+  Host: 127.0.0.1
+  Port: 40

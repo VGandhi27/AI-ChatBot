@@ -1,8 +1,14 @@
+'''
+* File Name         : Upload2.py
+* Description       : Functions related to Upload data in postgresql
+'''
+
+# Import Modules
 import json
 import requests
 import nltk
 from nltk.tokenize import sent_tokenize
-
+from chatbot.src import Common
 nltk.download("punkt")
 
 # Updated JSON data
@@ -60,7 +66,8 @@ portfolio_data = [
 ]
 
 # API Endpoint
-url = "http://localhost:40/chatbot/upload/"
+cbot_config = Common.chat_bot_config()
+url = f"http://{cbot_config['Host']}:{cbot_config['Port']}/chatbot/upload/"
 
 # Upload data to API with correct format
 for item in portfolio_data:
