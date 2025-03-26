@@ -57,3 +57,5 @@ for sentence in sentences:
     print(f"Uploaded: {sentence[:50]}... | Response: {response.json()}")
 
 print("\n✅ Data uploaded successfully!")
+
+# Run code python -m chatbot.src.upload_data

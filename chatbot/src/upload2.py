@@ -82,3 +82,5 @@ for item in portfolio_data:
         print(f"❌ Failed: {item['question'][:50]}... | Status: {response.status_code}")
 
 print("\n🎉✅ Data uploaded successfully!")
+
+# Run code python -m chatbot.src.upload2
