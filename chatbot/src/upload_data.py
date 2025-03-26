@@ -14,8 +14,7 @@ nltk.download("punkt")
 
 # Your structured JSON data
 portfolio_data = {
-    "name": "Vidushi Gandhi",
-    "role": "Data Science Engineer at Iktara Data Sciences",
+    "role": "Vidushi Gandhi is a Data Science Engineer at Iktara Data Sciences",
     "professional_background": "Developing Airtel Transmission System, creating inventory storage pipeline...",
     "education": "B.Tech in Computer Science & Engineering from Echelon Institute of Technology, Faridabad",
     "research_papers": [
