@@ -15,6 +15,9 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+from chatbot.src import Common
+
+pfolio_config = Common.portfolio_config()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -126,7 +129,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS  = [
-    "http://localhost:50",  # Allow Next.js frontend
+    f"http://{pfolio_config['Host']}:{pfolio_config['Port']}",  # Allow Next.js frontend
 ]
 
-CSRF_TRUSTED_ORIGINS = ["http://localhost:50"]
+CSRF_TRUSTED_ORIGINS = [f"http://{pfolio_config['Host']}:{pfolio_config['Port']}"]
