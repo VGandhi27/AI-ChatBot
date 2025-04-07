@@ -1,22 +1,20 @@
 import json
 import numpy as np
 import psycopg2
+import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.db import connection
-import torch
 import nltk
 import re
 from nltk.tokenize import sent_tokenize
-from transformers import AutoTokenizer, AutoModel
 
 nltk.download("punkt")
 
-# Load Hugging Face model for embedding generation
-tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
-model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
+# 📡 Ollama API URL
+OLLAMA_API_URL = "http://127.0.0.1:11434/api/embeddings"  # ✅ Update with new port if needed
 
 # PostgreSQL Connection
 DB_CONFIG = {
@@ -28,32 +26,39 @@ DB_CONFIG = {
 }
 
 # Similarity Threshold
-SIMILARITY_THRESHOLD = 0.6
+SIMILARITY_THRESHOLD = 0.2
 
 
-# 🔥 Function to generate embeddings
-def generate_embedding(text):
-    tokens = tokenizer(
-        text,
-        return_tensors="pt",
-        padding=True,
-        truncation=True,
-        max_length=512,  # ✅ Ensures no data is lost
-    )
-    with torch.no_grad():
-        embedding = model(**tokens).last_hidden_state.mean(dim=1).squeeze().tolist()
-    return embedding
+# 🔥 Generate embedding using Dolphin-phi model from Ollama API
+def generate_embedding(text, model="dolphin-phi"):
+    url = OLLAMA_API_URL
+    payload = {
+        "model": model,
+        "prompt": text,
+        "format": "json",
+    }
+
+    response = requests.post(url, json=payload)
+    if response.status_code == 200:
+        result = response.json()
+        embeddings = result.get("embedding", [])
+        if embeddings:
+            return embeddings
+        else:
+            raise Exception("No valid embeddings generated. Check model output.")
+    else:
+        raise Exception(f"Failed to generate embeddings: {response.text}")
 
 
-# 🔥 Preprocess the query to normalize it
+# 🔥 Preprocess query to normalize it
 def preprocess_query(query):
     query = query.lower().strip()
-    query = re.sub(r"[^\w\s]", "", query)  # Remove special characters
+    query = re.sub(r"[^\w\s]", "", query)
     query = query.replace("who is", "about").replace("what is", "describe")
     return query
 
 
-# 🔥 Split and combine text into meaningful chunks before embedding
+# 🔥 Split and combine text into chunks
 def split_and_combine(text, max_len=300):
     sentences = sent_tokenize(text)
     chunks = []
@@ -69,18 +74,14 @@ def split_and_combine(text, max_len=300):
     return chunks
 
 
-# 📡 API to store embeddings in PostgreSQL
+# 📡 API to store embeddings
 @api_view(["POST"])
 def upload_text(request):
-    """
-    API to upload text, generate embeddings, and store in PostgreSQL using raw SQL.
-    """
     try:
         text = request.data.get("text", None)
         if not text:
             return Response({"error": "No text provided."}, status=400)
 
-        # Split and combine text into meaningful chunks
         sentences = split_and_combine(text)
         inserted_data = []
 
@@ -89,8 +90,9 @@ def upload_text(request):
 
         for sentence in sentences:
             embedding = generate_embedding(sentence)
+
             cur.execute(
-                "INSERT INTO embeddings (content, embedding) VALUES (%s, %s) RETURNING id;",
+                "INSERT INTO embeddings (content, embedding) VALUES (%s, %s::vector) RETURNING id;",
                 (sentence, embedding),
             )
             new_id = cur.fetchone()[0]
@@ -111,7 +113,7 @@ def upload_text(request):
         return Response({"error": str(e)}, status=500)
 
 
-# 🔍 API to search embeddings and retrieve best matches
+# 🔍 API to search embeddings
 @csrf_exempt
 def search_embeddings(request):
     if request.method == "POST":
@@ -122,18 +124,25 @@ def search_embeddings(request):
             if not query_text:
                 return JsonResponse({"error": "Query text is required"}, status=400)
 
-            # Preprocess and generate query embedding
             query_text = preprocess_query(query_text)
+            print(f'query_text-{query_text}')
             query_embedding = generate_embedding(query_text)
-
-            # Connect to PostgreSQL
+            print(f'query_embedding-{query_embedding}')
             conn = psycopg2.connect(**DB_CONFIG)
             cursor = conn.cursor()
 
-            # Search in the vector database with a similarity threshold
+            # cursor.execute(
+            #     """
+            #     SELECT content, 1 - (embedding <=> %s::vector) AS similarity
+            #     FROM embeddings
+            #     ORDER BY similarity DESC
+            #     LIMIT 10;
+            #     """,
+            #     (query_embedding,),
+            # )
             cursor.execute(
                 """
-                SELECT content, 1 - (embedding <=> %s::vector) AS similarity
+                SELECT content, 1 - (embedding <#> %s::vector) AS similarity
                 FROM embeddings
                 ORDER BY similarity DESC
                 LIMIT 10;
@@ -141,20 +150,17 @@ def search_embeddings(request):
                 (query_embedding,),
             )
 
-            # Filter results by threshold
+
             filtered_results = [
                 {"text": row[0], "similarity": row[1]}
                 for row in cursor.fetchall()
                 if row[1] >= SIMILARITY_THRESHOLD
             ]
 
+            print(f'filtered_results--{filtered_results}')
+
             cursor.close()
             conn.close()
-
-            if not filtered_results:
-                return JsonResponse(
-                    {"results": [], "message": "No relevant results found."}
-                )
 
             return JsonResponse({"results": filtered_results})
 
