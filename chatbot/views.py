@@ -1,10 +1,11 @@
 import json
-import numpy as np
+
 import psycopg2
 import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
+from chatbot.src import rag
 from rest_framework.response import Response
 import nltk
 import re
@@ -108,7 +109,8 @@ def upload_text(request):
     except Exception as e:
         return Response({"error": str(e)}, status=500)
 
-# 🔹 Search embeddings
+
+# 🔹 RAG Search Embeddings + Generation
 @csrf_exempt
 def search_embeddings(request):
     if request.method == "POST":
@@ -118,33 +120,52 @@ def search_embeddings(request):
             if not query_text:
                 return JsonResponse({"error": "Query text is required"}, status=400)
 
-            query_text = preprocess_query(query_text)
-            query_embedding = generate_embedding(query_text)
+            # 🔹 Preprocess + Embed the Query
+            query_text_cleaned = preprocess_query(query_text)
+            query_embedding = generate_embedding(query_text_cleaned)
             query_embedding_str = "[" + ", ".join(map(str, query_embedding)) + "]"
 
+            # 🔹 Retrieve relevant chunks from DB
             conn = psycopg2.connect(**DB_CONFIG)
             cursor = conn.cursor()
-
             cursor.execute(
                 """
                 SELECT content, 1 - (embedding <#> %s::vector) AS similarity
                 FROM embeddings
                 ORDER BY similarity DESC
-                LIMIT 10;
+                LIMIT 5;
                 """,
                 (query_embedding_str,),
             )
 
+            top_results = cursor.fetchall()
             filtered_results = [
                 {"text": row[0], "similarity": row[1]}
-                for row in cursor.fetchall()
+                for row in top_results
                 if row[1] >= SIMILARITY_THRESHOLD
             ]
 
             cursor.close()
             conn.close()
 
-            return JsonResponse({"results": filtered_results})
+            if not filtered_results:
+                return JsonResponse({
+                    "generated_answer": "Sorry, I couldn't find relevant information.",
+                    "results": []
+                })
+
+            # 🔹 Combine retrieved chunks as context
+            context = "\n".join([res["text"] for res in filtered_results])
+
+            # 🔹 Generate final answer using phi
+            generated_answer = rag.generate_response_with_phi(context, query_text, model="dolphin-phi")
+
+            return JsonResponse({
+                "query": query_text,
+                "context": context,
+                "generated_answer": generated_answer,
+                "results": filtered_results
+            })
 
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
