@@ -5,30 +5,36 @@ import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
-from chatbot.src import rag
+from chatbot.src import rag,Common
 from rest_framework.response import Response
 import nltk
 import re
 from nltk.tokenize import sent_tokenize
 
-nltk.download("punkt")
+# Model Config 
+model_config =  Common.model_config()
 
 # Ollama API
-OLLAMA_API_URL = "http://127.0.0.1:11434/api/embeddings"
+OLLAMA_API_URL = f"http://{model_config['Host']}:{model_config['Port']}/api/embeddings"
+
+nltk.download("punkt")
+
+# Database Config
+db_config = Common.db_config()
 
 # PostgreSQL Config
 DB_CONFIG = {
-    "dbname": "portfolio",
-    "user": "postgres",
-    "password": "root",
-    "host": "localhost",
-    "port": "5433",
+    "dbname": db_config['DBName'],
+    "user": db_config['User'],
+    "password": db_config['Password'],
+    "host": db_config['Host'],
+    "port": db_config['Port'],
 }
 
 SIMILARITY_THRESHOLD = 0.2
 
 # 🔹 Generate Embedding
-def generate_embedding(text, model="dolphin-phi"):
+def generate_embedding(text, model=model_config['Model']):
     url = OLLAMA_API_URL
     payload = {
         "model": model,
@@ -158,7 +164,7 @@ def search_embeddings(request):
             context = "\n".join([res["text"] for res in filtered_results])
 
             # 🔹 Generate final answer using phi
-            generated_answer = rag.generate_response_with_phi(context, query_text, model="dolphin-phi")
+            generated_answer = rag.generate_response_with_phi(context, query_text, model=model_config['Model'])
 
             return JsonResponse({
                 "query": query_text,

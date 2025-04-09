@@ -6,3 +6,15 @@ Portfolio:
 ChatBot:
   Host: 127.0.0.1
   Port: 40
+
+AIModel:
+  Model: dolphin-phi
+  Host: 127.0.0.1
+  Port: 11434
+
+DBConfig:
+  DBName: portfolio
+  User: postgres
+  Password: root
+  Host: localhost
+  Port: 5433
