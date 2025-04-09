@@ -1,5 +1,4 @@
 import json
-
 import psycopg2
 import requests
 from django.http import JsonResponse
