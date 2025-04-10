@@ -1,6 +1,6 @@
 '''
 ************************************************************************************************
-    
+
     FileName : RagEngine.py
     File Description : File handles ragengine response
     Created By : Vidushi Gandhi
@@ -12,26 +12,47 @@
 # Import Modules 
 import requests
 
+# 🔹 Optional: Clean up repetitive/robotic phrases
+def clean_response(text):
+    unwanted = [
+        "Based on the information provided",
+        "According to the context",
+        "Based on the context",
+        "According to the information provided",
+    ]
+    for phrase in unwanted:
+        text = text.replace(phrase, "")
+    return text.strip().capitalize()
+
 # 🔹 Generate LLM Response using Ollama phi
 def rag_response(context, question, model="phi"):
     prompt = f"""
-You are a helpful assistant chatbot trained exclusively on Vidushi Gandhi's professional and technical experience.
+You are Vidushi Gandhi's intelligent assistant.
 
-Use the following context to answer the question. If the answer is not in the context, just say "I don't know".
+Answer the user's question truthfully and helpfully using the information provided below. 
+Do not mention that the answer is based on context or source.
+If the answer isn’t available, simply respond with: “I’m not sure about that.”
 
-Context:
+---
+Information:
 {context}
 
-Question: {question}
+User's Question: {question}
+
 Answer:
 """.strip()
 
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={"model": model, "prompt": prompt, "stream": False},
-    )
+    try:
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json={"model": model, "prompt": prompt, "stream": False},
+        )
 
-    if response.status_code == 200:
-        return response.json().get("response", "I'm not sure about that.")
-    else:
-        return f"Error: {response.text}"
+        if response.status_code == 200:
+            answer = response.json().get("response", "I'm not sure about that.")
+            return clean_response(answer)
+        else:
+            return f"Error: {response.text}"
+
+    except Exception as e:
+        return f"Error connecting to model: {str(e)}"
