@@ -10,9 +10,17 @@
 '''
 
 # Import Modules 
+import requests
+from chatbot.src import Common
+
+# Model Config 
+model_config =  Common.model_config()
+
+# Ollama API
+OLLAMA_API_URL = f"http://{model_config['Host']}:{model_config['Port']}/api/embeddings"
 
 # 🔹 Generate Embedding
-def generate_embedding(text, model=model_config['Model']):
+def chatem_generate_embedding(text, model=model_config['Model']):
     url = OLLAMA_API_URL
     payload = {
         "model": model,

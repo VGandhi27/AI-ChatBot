@@ -1,7 +1,7 @@
 '''
 ************************************************************************************************
     
-    FileName : StoreData.py
+    FileName : ChatStore.py
     File Description : File handle storing data in database
     Created By : Vidushi Gandhi
     Date : 9th April 2025
@@ -10,11 +10,8 @@
 '''
 
 # Import Modules 
-import nltk
-import re
 import psycopg2
-from chatbot.src import Common
-from chatbot import views
+from chatbot.src import ChatEmbed, Common
 from nltk.tokenize import sent_tokenize
 
 '''***************************************** Main Code ********************************************'''
@@ -48,11 +45,10 @@ def split_and_combine(text, max_len=300):
     return chunks
 
 
-def upload_text(request):
+def cstore_upload_data(text):
     try:
-        text = request.data.get("text", None)
         if not text:
-            return {"error": "No text provided."}
+            return {"error": "No text provided."},400
 
         sentences = split_and_combine(text)
         inserted_data = []
@@ -61,7 +57,7 @@ def upload_text(request):
         cur = conn.cursor()
 
         for sentence in sentences:
-            embedding = views.generate_embedding(sentence)
+            embedding = ChatEmbed.chatem_generate_embedding(sentence)
             embedding_str = "[" + ", ".join(map(str, embedding)) + "]"  # ✅ Convert to PostgreSQL vector format
 
             cur.execute(
@@ -79,7 +75,7 @@ def upload_text(request):
         cur.close()
         conn.close()
 
-        return {"message": "Embeddings stored successfully!", "data": inserted_data}
+        return {"message": "Embeddings stored successfully!", "data": inserted_data},201
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": str(e)},500
 

@@ -1,7 +1,19 @@
+'''
+************************************************************************************************
+    
+    FileName : RagEngine.py
+    File Description : File handles ragengine response
+    Created By : Vidushi Gandhi
+    Date : 9th April 2025
+
+************************************************************************************************
+'''
+
+# Import Modules 
 import requests
 
 # 🔹 Generate LLM Response using Ollama phi
-def generate_response_with_phi(context, question, model="phi"):
+def rag_response(context, question, model="phi"):
     prompt = f"""
 You are a helpful assistant chatbot trained exclusively on Vidushi Gandhi's professional and technical experience.
 
