@@ -1,3 +1,12 @@
+'''
+****************************************************************************************
+        File created by Vidushi Gandhi
+        Filename : Data.txt
+        Purpose : This is the data on which the chat model is getting trained
+        Date : 7th March 2025
+
+****************************************************************************************
+'''
 
 Vidushi Gandhi is a passionate and driven Data Science at Iktara, with a deep interest in artificial intelligence, machine learning, and software development. With a strong background in data science, full-stack development, and cloud computing, Vidushi has worked on a variety of projects ranging from recommendation systems to large-scale web applications.
 Her expertise spans multiple programming languages, frameworks, and tools, including Python, JavaScript, React.js, Node.js, Django, SQL, PostgreSQL, MongoDB, and CephFS. She has a keen interest in solving complex problems using machine learning, natural language processing (NLP), and deep learning.

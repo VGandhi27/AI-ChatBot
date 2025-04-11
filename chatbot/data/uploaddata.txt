@@ -1,7 +1,7 @@
 '''
 ****************************************************************************************
         File created by Vidushi Gandhi
-        Filename : Uploaddata.text
+        Filename : Uploaddata.txt
         Purpose : This is the data on which the chat model is getting trained
         Date : 7th April 2025
 
