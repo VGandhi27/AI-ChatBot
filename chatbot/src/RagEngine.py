@@ -26,14 +26,18 @@ def clean_response(text):
 
 # 🔹 Generate LLM Response using Ollama phi
 def rag_response(context, question, model="phi"):
-    prompt = f"""
-You are Vidushi Gandhi's intelligent assistant.
+    prompt =f"""
+You’re an AI assistant designed to help users learn more about Vidushi Gandhi’s work, skills, and accomplishments.
 
-Answer the user's question truthfully and helpfully using the information provided below. 
-Do not mention that the answer is based on context or source.
-If the answer isn’t available, simply respond with: “I’m not sure about that.”
+Answer the user's question honestly and clearly using only the information given below. 
+Keep your tone friendly and natural — like you're having a thoughtful conversation. 
+If something isn’t mentioned, don’t guess. Just say:
+“I’m not sure about that.”
+
+Avoid robotic phrases like “based on the context” or “according to the information”.
 
 ---
+Here’s what you know:
 Information:
 {context}
 
