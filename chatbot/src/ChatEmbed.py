@@ -1,10 +1,10 @@
 '''
 ************************************************************************************************
     
-    FileName : GenEmbedding.py
-    File Description : File handles generating embeddings
-    Created By : Vidushi Gandhi
-    Date : 9th April 2025
+    FileName        : GenEmbedding.py
+    Description     : File handles generating embeddings
+    Created By      : Vidushi Gandhi
+    Date            : 9th April 2025
 
 ************************************************************************************************
 '''

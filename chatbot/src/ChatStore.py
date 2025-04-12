@@ -1,10 +1,10 @@
 '''
 ************************************************************************************************
     
-    FileName : ChatStore.py
-    File Description : File handle storing data in database
-    Created By : Vidushi Gandhi
-    Date : 9th April 2025
+    FileName          : ChatStore.py
+    Description       : File handle storing data in database
+    Created By        : Vidushi Gandhi
+    Date              : 9th April 2025
 
 ************************************************************************************************
 '''
