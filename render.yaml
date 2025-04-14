@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: chatbot-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python manage.py runserver 0.0.0.0:8000"  # Change if you're using Django or different entry point
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chatbot-db
+          property: connectionString
+      - key: OLLAMA_API_URL
+        value: https://127.0.0.1:11434  # Replace with your Ollama endpoint
+
+databases:
+  - name: chatbot-db
+    databaseName: portfolio
+    user: embeddings
