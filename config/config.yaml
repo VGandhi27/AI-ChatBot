@@ -13,8 +13,10 @@ AIModel:
   Port: 11434
 
 DBConfig:
-  DBName: portfolio
-  User: postgres
-  Password: root
-  Host: localhost
-  Port: 5433
+  DBName: portfolio_z605
+  User: vidushigandhi27
+  Password: yFaHwt40JrAXok6mV4ZUgEaCZGIzIA1S
+  Host: dpg-cvvrsva4d50c739mbpt0-a.oregon-postgres.render.com
+  Port: 5432
+
+
