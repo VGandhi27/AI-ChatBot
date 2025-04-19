@@ -26,10 +26,12 @@ pfolio_config = Common.portfolio_config()
 SECRET_KEY = 'django-insecure-j=&k#@*#^^+m0bgw02etn8!7!v5wh$n6*bu_h&&a7rmkwnytt)'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+# Handle Not Found case
+HANDLER404 = 'chatbot.views.notfound'
 
 # Application definition
 

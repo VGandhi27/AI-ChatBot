@@ -1,6 +1,5 @@
 import json
-
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from chatbot.src import ChatStore,ChatResponse
@@ -23,3 +22,7 @@ def search_embeddings(request):
         res , code = ChatResponse.chatres_search_embeddings(data)
         return JsonResponse(res, status = code)
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+def notfound(request, exception):
+    return HttpResponseNotFound("Oops! Page not found.")
