@@ -11,7 +11,13 @@
 
 # Import Modules 
 import requests
+from chatbot.src import Common
 
+# Model Config 
+model_config =  Common.model_config()
+
+# Ollama API
+OLLAMA_API_URL = f"http://{model_config['Host']}:{model_config['Port']}/api/embeddings"
 # 🔹 Optional: Clean up repetitive/robotic phrases
 def clean_response(text):
     unwanted = [
@@ -49,8 +55,7 @@ Answer:
 
     try:
         response = requests.post(
-            "http://localhost:11434/api/generate",
-            json={"model": model, "prompt": prompt, "stream": False},
+            OLLAMA_API_URL, json={"model": model, "prompt": prompt, "stream": False},
         )
 
         if response.status_code == 200:
