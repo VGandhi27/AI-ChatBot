@@ -132,6 +132,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS  = [
     f"http://{pfolio_config['Host']}:{pfolio_config['Port']}",  # Allow Next.js frontend
+    "https://vidushigandhi279.vercel.app",  # Production
 ]
 
-CSRF_TRUSTED_ORIGINS = [f"http://{pfolio_config['Host']}:{pfolio_config['Port']}"]
+CSRF_TRUSTED_ORIGINS = [f"http://{pfolio_config['Host']}:{pfolio_config['Port']}",
+                         "https://vidushigandhi279.vercel.app",  # Production
+                         ]
