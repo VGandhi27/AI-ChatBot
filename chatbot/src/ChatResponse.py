@@ -47,7 +47,11 @@ def chatres_search_embeddings(data):
     try:
         query_text = data.get("query")
         if not query_text:
-            return {"error": "Query text is required."}, 400
+            res = {"error": "Query text is required."}
+            chat_logger.debug(f'Error in chatres_search_embeddings: {res}')
+            chat_logger.error(f"Error in chatres_search_embeddings: {res}")
+       
+            return res, 400
 
         # 🔹 Preprocess + Embed
         query_text_cleaned = _preprocess_query(query_text)
@@ -80,10 +84,14 @@ def chatres_search_embeddings(data):
         ]
 
         if not filtered_results:
-            return {
+            res = {
                 "generated_answer": "Sorry, I couldn't find relevant information.",
                 "source_texts": []
-            }, 200
+            }
+            chat_logger.debug(f'Error in chatres_search_embeddings: {res}')
+            chat_logger.error(f"Error in chatres_search_embeddings: {res}")
+        
+            return res, 200
 
         # Join context and generate answer
         context = "\n".join([res["text"] for res in filtered_results])
