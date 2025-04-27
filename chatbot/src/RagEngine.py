@@ -10,15 +10,22 @@
 '''
 
 # Import Modules 
-import requests
-from chatbot.src import Common
 import os
+import torch
+import requests
+import logging
+from chatbot.src import Common
+
 os.environ["TRANSFORMERS_NO_TF"] = "1"
 
 # Hugging Face Grammar Model
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-import torch
+'''***************************************** Main Code ********************************************'''
+# Adding app_logger
+chat_logger = logging.getLogger('app_logger')
+
+
 # Initialize variables
 tokenizer, model = None, None
 
@@ -56,6 +63,7 @@ def clean_response(text):
 
 # Generate LLM Response using Ollama
 def rag_response(context, question, model="phi"):
+    chat_logger.debug(f'rag_response request: {context, question, model}')
     prompt =f"""
 You’re a helpful, articulate AI assistant trained on Vidushi Gandhi’s professional background. 
 You think like a curious, well-informed human who communicates clearly and thoughtfully.
@@ -82,12 +90,17 @@ Answer:
             OLLAMA_API_URL, json={"model": model, "prompt": prompt, "stream": False},
         )
         if response.status_code == 200:
+            chat_logger.debug(f'Rag Engine successfully fetch the response from ollama model')
             raw_answer = response.json().get("response", "I'm not sure about that.")
             cleaned = clean_response(raw_answer)
             polished = polish_grammar(cleaned)
             return polished
         else:
+            chat_logger.debug(f'Failure in ollama res : {response.text}')
+            chat_logger.error(f'Failure in ollama res : {response.text}')
             return f"Error: {response.text}"
 
     except Exception as e:
+        chat_logger.debug(f'Error connecting to model: {str(e)}')
+        chat_logger.error(f'Error connecting to model: {str(e)}')
         return f"Error connecting to model: {str(e)}"
