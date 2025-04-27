@@ -19,6 +19,10 @@ from chatbot.src import Common
 
 pfolio_config = Common.portfolio_config()
 
+from .chat_log import get_logging_config
+
+LOGGING = get_logging_config(BASE_DIR)
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
