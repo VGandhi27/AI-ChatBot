@@ -3,13 +3,13 @@ version: "3.9"
 services:
   chat-backend:
     build:
-      context: ./chat_backend
-      dockerfile: Dockerfile  
+      context: .
+      dockerfile: /Dockerfile  
     container_name: chat_backend
     ports:
       - "8000:8000"
     volumes:
-      - ./chat_backend:/app
+      - ./chat_backend:/chat_backend
     depends_on:
       - ollama
     environment:
