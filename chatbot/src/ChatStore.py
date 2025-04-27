@@ -46,6 +46,7 @@ db_cred = {
 
 # Chunk large text
 def split_and_combine(text, max_len=300):
+    chat_logger.debug(f"split_and_combine text:{text}")
     sentences = sent_tokenize(text)
     chunks = []
     current_chunk = ""
