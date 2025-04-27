@@ -19,13 +19,20 @@ os.environ["TRANSFORMERS_NO_TF"] = "1"
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
 import torch
+# Initialize variables
+tokenizer, model = None, None
 
-# Load grammar correction model once
-tokenizer = AutoTokenizer.from_pretrained("vennify/t5-base-grammar-correction")
-model = AutoModelForSeq2SeqLM.from_pretrained("vennify/t5-base-grammar-correction", from_tf=False)
+def load_model():
+    # Load grammar correction model once
+    global tokenizer, model
+    if tokenizer is None or model is None:
+        tokenizer = AutoTokenizer.from_pretrained("vennify/t5-base-grammar-correction")
+        model = AutoModelForSeq2SeqLM.from_pretrained("vennify/t5-base-grammar-correction", from_tf=False)
+    return tokenizer, model
 
 
 def polish_grammar(text):
+    tokenizer, model = load_model()
     input_text = f"grammar: {text}"
     inputs = tokenizer.encode(input_text, return_tensors="pt", max_length=512, truncation=True)
     outputs = model.generate(inputs, max_length=512, num_beams=4, early_stopping=True)
