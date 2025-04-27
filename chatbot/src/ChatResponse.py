@@ -16,8 +16,8 @@ import logging
 from chatbot.src import ChatEmbed, RagEngine, Common
 
 '''***************************************** Main Code ********************************************'''
-# Setup Logging
-logging.basicConfig(level=logging.INFO)
+# Adding app_logger
+chat_logger = logging.getLogger('app_logger')
 
 # Database Config
 db_config = Common.db_config()
@@ -43,6 +43,7 @@ def _preprocess_query(query):
 
 # Main function for embedding-based search
 def chatres_search_embeddings(data):
+    chat_logger.debug(f'chatres_search_embeddings data:{data}')
     try:
         query_text = data.get("query")
         if not query_text:
@@ -50,10 +51,12 @@ def chatres_search_embeddings(data):
 
         # 🔹 Preprocess + Embed
         query_text_cleaned = _preprocess_query(query_text)
+        chat_logger.debug(f'Successfully preprocess the query')
         query_embedding = ChatEmbed.chatem_generate_embedding(query_text_cleaned)
+        chat_logger.debug(f'Embeddings generated ')
         query_embedding_str = "[" + ", ".join(map(str, query_embedding)) + "]"
 
-        logging.info(f"Query: {query_text_cleaned}")
+        chat_logger.debug(f"Query: {query_text_cleaned}")
 
         # 🔹 Vector search in PostgreSQL
         with psycopg2.connect(**db_cred) as conn:
@@ -104,9 +107,10 @@ def chatres_search_embeddings(data):
             "source_texts": source_texts,
             "model": model_config['Model']
         }
-
+        chat_logger.debug(f'Chat response {generated_answer}')
         return res, 200
 
     except Exception as e:
-        logging.error(f"Error in chatres_search_embeddings: {e}")
+        chat_logger.debug(f'Error in chatres_search_embeddings: {e}')
+        chat_logger.error(f"Error in chatres_search_embeddings: {e}")
         return {"error": str(e)}, 500
