@@ -23,6 +23,11 @@ from .chat_log import get_logging_config
 
 LOGGING = get_logging_config(BASE_DIR)
 
+import os
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
