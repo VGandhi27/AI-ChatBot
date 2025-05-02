@@ -9,8 +9,9 @@ ChatBot:
 
 AIModel:
   Model: dolphin-phi
-  Host: 172.206.16.46
-  Port: 11500
+  Host: 20.161.72.184
+  Port: 11434
+  
 DBConfig:
   DBName: portfolio_z605
   User: vidushigandhi27
