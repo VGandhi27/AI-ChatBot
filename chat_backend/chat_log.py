@@ -1,7 +1,7 @@
 '''
 ************************************************************************************************
     
-    FileName          : ChatStore.py
+    FileName          : chat_log.py
     Description       : File handle app logs
     Created By        : Vidushi Gandhi
     Date              : 27 April 2025
